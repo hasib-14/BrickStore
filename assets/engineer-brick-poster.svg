@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Red bricks forming the base of a beautiful home">
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#152634"/>
+      <stop offset=".46" stop-color="#586a67"/>
+      <stop offset="1" stop-color="#d69b6a"/>
+    </linearGradient>
+    <linearGradient id="brick" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#df6840"/>
+      <stop offset=".55" stop-color="#a83923"/>
+      <stop offset="1" stop-color="#651f18"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#d8eef0"/>
+      <stop offset="1" stop-color="#537078"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" fill="url(#sky)"/>
+  <circle cx="800" cy="96" r="42" fill="#ffde97" opacity=".78"/>
+  <g fill="#fffaf2" opacity=".2">
+    <ellipse cx="130" cy="96" rx="62" ry="18"/>
+    <ellipse cx="172" cy="92" rx="48" ry="14"/>
+    <ellipse cx="390" cy="118" rx="62" ry="18"/>
+    <ellipse cx="432" cy="114" rx="48" ry="14"/>
+  </g>
+  <g fill="#2a332f" opacity=".34">
+    <rect x="70" y="145" width="58" height="230"/>
+    <rect x="198" y="123" width="58" height="252"/>
+    <rect x="326" y="145" width="58" height="230"/>
+    <rect x="710" y="123" width="58" height="252"/>
+  </g>
+  <rect y="376" width="960" height="164" fill="#3f3025"/>
+  <ellipse cx="560" cy="420" rx="320" ry="34" fill="#140f0d" opacity=".26"/>
+  <g stroke="#fffaf2" stroke-opacity=".34" stroke-width="4">
+    <path d="M336 188v196M414 188v196M492 188v196M570 188v196M648 188v196M726 188v196M804 188v196"/>
+    <path d="M326 218h486M326 266h486M326 314h486M326 362h486"/>
+  </g>
+  <rect x="374" y="404" width="420" height="18" fill="#f5eede" opacity=".92"/>
+  <g fill="url(#brick)" stroke="#ffe7d0" stroke-opacity=".45" stroke-width="2">
+    <rect x="82" y="410" width="40" height="19"/>
+    <rect x="127" y="410" width="40" height="19"/>
+    <rect x="172" y="410" width="40" height="19"/>
+    <rect x="217" y="410" width="40" height="19"/>
+    <rect x="104" y="386" width="40" height="19"/>
+    <rect x="149" y="386" width="40" height="19"/>
+    <rect x="194" y="386" width="40" height="19"/>
+  </g>
+  <g fill="url(#brick)" stroke="#ffe7d0" stroke-opacity=".45" stroke-width="2">
+    <rect x="392" y="392" width="43" height="21"/>
+    <rect x="438" y="392" width="43" height="21"/>
+    <rect x="484" y="392" width="43" height="21"/>
+    <rect x="576" y="392" width="43" height="21"/>
+    <rect x="622" y="392" width="43" height="21"/>
+    <rect x="668" y="392" width="43" height="21"/>
+    <rect x="415" y="371" width="43" height="21"/>
+    <rect x="461" y="371" width="43" height="21"/>
+    <rect x="507" y="371" width="43" height="21"/>
+    <rect x="599" y="371" width="43" height="21"/>
+    <rect x="645" y="371" width="43" height="21"/>
+    <rect x="392" y="350" width="43" height="21"/>
+    <rect x="438" y="350" width="43" height="21"/>
+    <rect x="576" y="350" width="43" height="21"/>
+    <rect x="622" y="350" width="43" height="21"/>
+    <rect x="668" y="350" width="43" height="21"/>
+    <rect x="392" y="329" width="43" height="21"/>
+    <rect x="438" y="329" width="43" height="21"/>
+    <rect x="576" y="329" width="43" height="21"/>
+    <rect x="622" y="329" width="43" height="21"/>
+    <rect x="668" y="329" width="43" height="21"/>
+    <rect x="392" y="308" width="43" height="21"/>
+    <rect x="530" y="308" width="43" height="21"/>
+    <rect x="668" y="308" width="43" height="21"/>
+    <rect x="415" y="287" width="43" height="21"/>
+    <rect x="507" y="287" width="43" height="21"/>
+    <rect x="599" y="287" width="43" height="21"/>
+    <rect x="691" y="287" width="43" height="21"/>
+    <rect x="392" y="266" width="43" height="21"/>
+    <rect x="438" y="266" width="43" height="21"/>
+    <rect x="484" y="266" width="43" height="21"/>
+    <rect x="530" y="266" width="43" height="21"/>
+    <rect x="576" y="266" width="43" height="21"/>
+    <rect x="622" y="266" width="43" height="21"/>
+    <rect x="668" y="266" width="43" height="21"/>
+  </g>
+  <rect x="535" y="329" width="68" height="76" fill="#3b2720"/>
+  <circle cx="589" cy="365" r="3" fill="#bd8b3a"/>
+  <g stroke="#fffaf2" stroke-width="4">
+    <rect x="450" y="270" width="62" height="46" fill="url(#glass)"/>
+    <path d="M481 270v46M450 293h62"/>
+    <rect x="636" y="270" width="62" height="46" fill="url(#glass)"/>
+    <path d="M667 270v46M636 293h62"/>
+  </g>
+  <path d="M366 230 570 114 774 230Z" fill="#4b2019" stroke="#c98547" stroke-width="10"/>
+  <rect x="668" y="126" width="34" height="78" fill="#2f1815"/>
+  <rect x="660" y="114" width="50" height="16" fill="#6c2b20"/>
+  <g>
+    <path d="M468 284a24 24 0 0 1 48 0" fill="none" stroke="#f2c66f" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="492" cy="308" r="20" fill="#d9a45c"/>
+    <rect x="466" y="330" width="52" height="78" fill="#577060"/>
+    <path d="M478 344 450 358M512 346 560 318M480 408 464 468M506 408 536 468" fill="none" stroke="#d9a45c" stroke-width="12" stroke-linecap="round"/>
+  </g>
+  <rect x="558" y="297" width="48" height="23" fill="url(#brick)" stroke="#ffe7d0" stroke-opacity=".45" stroke-width="2" transform="rotate(-8 582 308.5)"/>
+  <text x="64" y="482" fill="#fffaf2" fill-opacity=".86" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="700">From plain red brick to a beautiful home</text>
+  <text x="64" y="510" fill="#fffaf2" fill-opacity=".78" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="500">A natural construction timelapse generated for Monolith Brick Co.</text>
+</svg>

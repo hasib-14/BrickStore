@@ -1,20 +1,12 @@
-const video = document.querySelector("#engineerVideo");
-const canvas = document.querySelector("#videoCanvas");
-const ctx = canvas.getContext("2d");
-const brick = document.querySelector("#brick3d");
-const spinButton = document.querySelector("#spinBrick");
-const gameBoard = document.querySelector("#gameBoard");
-const resetButton = document.querySelector("#resetGame");
-const scoreEl = document.querySelector("#score");
-const guide = document.querySelector("#dropGuide");
+﻿/* ---- BrickStore hero intro video ---- */
+(() => {
+  const video = document.querySelector('#engineerVideo');
+  const canvas = document.querySelector('#videoCanvas');
+  if (!video || !canvas) return;
 
-let frame = 0;
-let recorded = false;
-let gameScore = 0;
-let brickCount = 0;
-let moverX = 130;
-let moverDirection = 1;
-let gameAnimation = 0;
+  const ctx = canvas.getContext('2d');
+  let frame = 0;
+  let recorded = false;
 
 function drawEngineerScene(tick) {
   const w = canvas.width;
@@ -597,105 +589,655 @@ function makeVideoLoop() {
   render();
 }
 
-function setupReveal() {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) entry.target.classList.add("is-visible");
-      });
-    },
-    { threshold: 0.18 }
-  );
-  document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+  makeVideoLoop();
+})();
+/* ============================================================
+   BRICK-BYTE â€” script.js
+   ============================================================ */
+
+/* â”€â”€ 1. REVEAL ON SCROLL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+/* â”€â”€ 2. 3D GALLERY CUBE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+const cube    = document.getElementById('galleryCube');
+const gcLabel = document.getElementById('gcLabel');
+const dots    = document.querySelectorAll('.gd');
+const VIEWS   = [
+  { label:'Front Face',   rx:-15, ry:  25 },
+  { label:'Side Profile', rx:-15, ry: 115 },
+  { label:'Back Face',    rx:-15, ry: 205 },
+  { label:'Other Side',   rx:-15, ry: 295 },
+  { label:'Top View',     rx: 70, ry:  25 },
+  { label:'Bottom View',  rx:-90, ry:  25 },
+];
+let cv=0, drag=false, sx=0, sy=0, brx=-15, bry=25, drx=0, dry=0;
+function applyView(v, anim=true) {
+  cube.style.transition = anim ? 'transform .6s ease' : 'none';
+  cube.style.transform  = `rotateX(${v.rx+drx}deg) rotateY(${v.ry+dry}deg)`;
+  gcLabel.textContent = v.label;
+  dots.forEach((d,i) => d.classList.toggle('active', i===cv));
+  brx=v.rx; bry=v.ry; drx=0; dry=0;
+}
+function goView(idx) { cv=(idx+VIEWS.length)%VIEWS.length; applyView(VIEWS[cv]); }
+document.getElementById('gcLeft').addEventListener('click',  () => goView(cv-1));
+document.getElementById('gcRight').addEventListener('click', () => goView(cv+1));
+dots.forEach((d,i) => d.addEventListener('click', () => goView(i)));
+const sc2 = document.querySelector('.gallery-scene');
+sc2.addEventListener('mousedown', e => { drag=true; sx=e.clientX; sy=e.clientY; cube.style.transition='none'; });
+window.addEventListener('mousemove', e => { if(!drag) return; dry=(e.clientX-sx)*.5; drx=-(e.clientY-sy)*.3; cube.style.transform=`rotateX(${brx+drx}deg) rotateY(${bry+dry}deg)`; });
+window.addEventListener('mouseup', () => { if(!drag) return; drag=false; brx+=drx; bry+=dry; drx=0; dry=0; cube.style.transition='transform .4s ease'; });
+sc2.addEventListener('touchstart', e => { drag=true; sx=e.touches[0].clientX; sy=e.touches[0].clientY; cube.style.transition='none'; }, {passive:true});
+sc2.addEventListener('touchmove',  e => { if(!drag) return; dry=(e.touches[0].clientX-sx)*.5; drx=-(e.touches[0].clientY-sy)*.3; cube.style.transform=`rotateX(${brx+drx}deg) rotateY(${bry+dry}deg)`; }, {passive:true});
+sc2.addEventListener('touchend',   () => { drag=false; brx+=drx; bry+=dry; drx=0; dry=0; cube.style.transition='transform .4s ease'; });
+applyView(VIEWS[0], false);
+
+/* â”€â”€ 3. BRICK-BYTE RUNNER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+const canvas  = document.getElementById('runnerCanvas');
+const ctx     = canvas.getContext('2d');
+const overlay = document.getElementById('gameOverlay');
+const scoreEl = document.getElementById('score');
+const bestEl  = document.getElementById('bestScore');
+const overlayTitle = document.getElementById('overlayTitle');
+const overlayMsg   = document.getElementById('overlayMsg');
+
+const W = canvas.width, H = canvas.height;
+
+// â”€â”€ Colours (all brick-brand palette) â”€â”€
+const C = {
+  sky:    '#120208',
+  ground: '#1C0A06',
+  brick:  '#C0392B',
+  brickH: '#E85D4A',
+  brickS: '#7B241C',
+  bad:    '#6B7280',
+  mortar: '#0F0F0F',
+  runner: '#FAF6F0',
+  skin:   '#E8C99A',
+  gold:   '#F6C344',
+  red:    '#E74C3C',
+  white:  '#FFFFFF',
+};
+
+// â”€â”€ Game state â”€â”€
+let running = false, animId = null;
+let score = 0, bestScore = 0, coinScore = 0;
+let speed = 3, frameN = 0;
+let particles = [], coins = [];
+let lives = 3, invincible = 0, flashRed = 0;
+
+// â”€â”€ Ground â”€â”€
+const GY = H * 0.78;   // ground y (where runner stands)
+const FLOOR_H = 44;    // visual brick floor height
+
+// â”€â”€ Runner â”€â”€
+const RX = 110;        // fixed x position
+const runner = {
+  y: GY,               // bottom of runner feet
+  vy: 0,
+  onGround: true,
+  usedDouble: false,
+  dead: false,
+  frame: 0, ft: 0,
+};
+
+// â”€â”€ Obstacles: { x, type:'wall'|'gap'|'coin', w, h, collected } â”€â”€
+let obstacles = [];
+let nextObstX = W + 200;  // when to spawn next obstacle
+let gapActive = false;    // currently in a gap?
+
+// â”€â”€ Gap tracking (for gap-death) â”€â”€
+// We draw gaps as missing floor segments. Track them as obstacles type 'gap'.
+
+// â”€â”€ Difficulty â”€â”€
+function getSpeed()   { return 3 + Math.min(score * 0.028, 5); }
+function getMinGap()  { return Math.max(380 - score * 1.5, 220); } // gap between obstacles
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ SPAWN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function spawnNext() {
+  const s = getSpeed();
+  const roll = Math.random();
+  let obj;
+
+  if (score < 8) {
+    // Only coins early on â€” purely reward phase
+    obj = makeCoin();
+  } else if (score < 20) {
+    // Introduce wall bricks
+    if (roll < 0.55) obj = makeCoin();
+    else             obj = makeWall();
+  } else if (score < 40) {
+    // Add gaps
+    if (roll < 0.35) obj = makeCoin();
+    else if (roll < 0.65) obj = makeWall();
+    else obj = makeGap();
+  } else {
+    // Full mix
+    if (roll < 0.25)      obj = makeCoin();
+    else if (roll < 0.55) obj = makeWall();
+    else if (roll < 0.75) obj = makeGap();
+    else                  obj = makeDoubleWall();
+  }
+
+  obstacles.push(obj);
+  // Schedule next obstacle â€” further apart at higher speeds so it's still playable
+  nextObstX = obj.x + obj.w + getMinGap() + Math.random() * 120;
 }
 
-function updateScrollProgress() {
-  const showcase = document.querySelector(".showcase");
-  const rect = showcase.getBoundingClientRect();
-  const windowHeight = window.innerHeight || 1;
-  const progress = Math.min(1, Math.max(0, (windowHeight - rect.top) / (windowHeight + rect.height)));
-  showcase.style.setProperty("--scroll-progress", progress.toFixed(3));
-  requestAnimationFrame(updateScrollProgress);
+function makeCoin() {
+  const h = 26 + Math.random() * 40;  // height above ground
+  return { x: W + 60, type:'coin', w:18, h:0, cy: GY - h, collected:false };
 }
 
-function setupBrickInteraction() {
-  document.addEventListener("pointermove", (event) => {
-    const x = (event.clientX / window.innerWidth - 0.5) * 38;
-    const y = (event.clientY / window.innerHeight - 0.5) * -24;
-    brick.style.setProperty("--ry", `${-28 + x}deg`);
-    brick.style.setProperty("--rx", `${-18 + y}deg`);
+function makeWall() {
+  // Single brick wall â€” 1 or 2 bricks tall, random
+  const tall = score > 30 && Math.random() > 0.6;
+  const bh   = tall ? 80 : 46;
+  return { x: W + 60, type:'wall', w:38, h:bh, brand: Math.random() > 0.3 };
+}
+
+function makeDoubleWall() {
+  return { x: W + 60, type:'dwall', w:38, h:46, gap: 38 + Math.random()*20 };
+}
+
+function makeGap() {
+  return { x: W + 60, type:'gap', w: 55 + Math.random()*30, h:0 };
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ DRAWING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+function drawBG() {
+  // Sky gradient
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0, '#120208');
+  g.addColorStop(1, '#2A0A0A');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,W,H);
+
+  // Parallax city silhouette
+  ctx.fillStyle = 'rgba(100,20,10,0.22)';
+  const blds = [[0,70,55],[65,45,38],[112,28,48],[172,65,33],[215,18,42],[272,55,52],[335,38,28],[370,22,48],[430,52,38],[480,32,43],[535,62,57],[605,28,32],[648,42,52]];
+  blds.forEach(([bx,bh,bw]) => {
+    ctx.fillRect(bx, GY-FLOOR_H-bh, bw, bh);
+    ctx.fillStyle = 'rgba(255,120,40,0.1)';
+    for(let wy=GY-FLOOR_H-bh+8; wy<GY-FLOOR_H-12; wy+=16) {
+      for(let wx=bx+5; wx<bx+bw-5; wx+=11) {
+        if(Math.random()>0.45) ctx.fillRect(wx,wy,4,7);
+      }
+    }
+    ctx.fillStyle = 'rgba(100,20,10,0.22)';
   });
 
-  spinButton.addEventListener("click", () => {
-    brick.animate(
-      [
-        { transform: "rotateX(-18deg) rotateY(-28deg)" },
-        { transform: "rotateX(-18deg) rotateY(332deg)" }
-      ],
-      { duration: 900, easing: "cubic-bezier(.2,.8,.2,1)" }
-    );
+  // Stars
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  for(let i=0;i<40;i++) {
+    ctx.beginPath();
+    ctx.arc((i*179+frameN*0.05)%W, (i*83)%(GY-FLOOR_H-30), 0.8, 0, Math.PI*2);
+    ctx.fill();
+  }
+}
+
+function drawFloor(gaps) {
+  // Full floor rect first
+  ctx.fillStyle = C.ground;
+  ctx.fillRect(0, GY, W, H - GY);
+
+  // Draw brick pattern on floor (scrolls with speed)
+  const BROW = FLOOR_H / 2;
+  const offset = (frameN * getSpeed()) % 58;  // scroll
+  for(let row=0; row<2; row++) {
+    const rowOff = row===1 ? 29 : 0;
+    const y = GY + row * BROW;
+    for(let bx = -offset - rowOff; bx < W + 60; bx += 58) {
+      const bw = 54, bh = BROW - 3;
+      ctx.fillStyle = C.brick;
+      ctx.fillRect(bx, y, bw, bh);
+      ctx.fillStyle = C.brickH;
+      ctx.fillRect(bx, y, bw, 3);
+      ctx.fillStyle = C.brickS;
+      ctx.fillRect(bx, y+bh-3, bw, 3);
+      // BÂ·B logo on brand bricks
+      ctx.fillStyle = 'rgba(255,210,0,0.18)';
+      ctx.font = '7px "Black Han Sans",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('BÂ·B', bx+27, y+BROW/2+3);
+    }
+    // mortar row
+    ctx.fillStyle = C.mortar;
+    ctx.fillRect(0, y+BROW-3, W, 3);
+  }
+
+  // Cut gaps (paint void over gap zones)
+  gaps.forEach(g => {
+    ctx.fillStyle = C.sky; // erase floor with bg color
+    ctx.fillRect(g.x, GY, g.w, H-GY);
+    // Danger glow at gap edge
+    const gl = ctx.createLinearGradient(g.x, GY, g.x, H);
+    gl.addColorStop(0, 'rgba(192,57,43,0.35)');
+    gl.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gl;
+    ctx.fillRect(g.x, GY, g.w, FLOOR_H*2);
   });
 }
 
-function animateGameGuide() {
-  const boardWidth = gameBoard.clientWidth;
-  moverX += moverDirection * 2.4;
-  if (moverX > boardWidth - 120 || moverX < 16) moverDirection *= -1;
-  guide.style.left = `${moverX}px`;
-  gameAnimation = requestAnimationFrame(animateGameGuide);
+function drawObstacle(o) {
+  if(o.type === 'coin' || o.type === 'gap') return; // handled separately
+  const x = o.x, y = GY - o.h;
+
+  if(o.type === 'wall') {
+    // Draw brick wall column
+    const rows = Math.round(o.h / 24);
+    for(let r=0; r<rows; r++) {
+      const boff = r%2===0 ? 0 : 10;
+      const by = GY - (r+1)*24;
+      ctx.fillStyle = o.brand ? C.brick : C.bad;
+      ctx.beginPath(); ctx.roundRect(x - boff*0.3, by, o.w, 21, 2); ctx.fill();
+      ctx.fillStyle = o.brand ? C.brickH : '#9CA3AF';
+      ctx.fillRect(x - boff*0.3, by, o.w, 3);
+      ctx.fillStyle = o.brand ? C.brickS : '#4B5563';
+      ctx.fillRect(x - boff*0.3, by+18, o.w, 3);
+      if(o.brand) {
+        ctx.fillStyle = 'rgba(255,210,0,0.25)';
+        ctx.font = 'bold 7px "Black Han Sans",sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('BÂ·B', x+o.w/2-boff*0.3, by+13);
+      }
+      // Mortar
+      ctx.fillStyle = C.mortar;
+      ctx.fillRect(x - boff*0.3, by+21, o.w, 3);
+    }
+    // Warning label on fake bricks
+    if(!o.brand) {
+      ctx.fillStyle = 'rgba(255,80,80,0.7)';
+      ctx.font = 'bold 7px Inter,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('FAKE', x+o.w/2, GY - o.h - 5);
+    }
+  }
+
+  if(o.type === 'dwall') {
+    // Two walls with a gap runner can jump through
+    [0, o.gap+o.w].forEach(offset => {
+      for(let r=0; r<2; r++) {
+        const by = GY - (r+1)*24;
+        ctx.fillStyle = C.brick;
+        ctx.beginPath(); ctx.roundRect(x+offset, by, o.w, 21, 2); ctx.fill();
+        ctx.fillStyle = C.brickH;
+        ctx.fillRect(x+offset, by, o.w, 3);
+        ctx.fillStyle = C.brickS;
+        ctx.fillRect(x+offset, by+18, o.w, 3);
+        ctx.fillStyle = 'rgba(255,210,0,0.2)';
+        ctx.font = 'bold 7px "Black Han Sans",sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('BÂ·B', x+offset+o.w/2, by+13);
+        ctx.fillStyle = C.mortar;
+        ctx.fillRect(x+offset, by+21, o.w, 3);
+      }
+    });
+    // Arrow hint
+    ctx.fillStyle = 'rgba(246,195,68,0.7)';
+    ctx.font = 'bold 10px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText('â–² JUMP', x+o.w+o.gap/2, GY - 55);
+  }
 }
 
-function dropGameBrick() {
-  const boardRect = gameBoard.getBoundingClientRect();
-  const brickEl = document.createElement("span");
-  brickEl.className = "game-brick";
-  const x = Math.max(4, Math.min(moverX - 52, boardRect.width - 108));
-  const y = boardRect.height - 45 - brickCount * 34;
-  const center = boardRect.width / 2;
-  const accuracy = Math.max(0, 1 - Math.abs(x + 52 - center) / center);
+function drawCoinObj(o) {
+  if(o.collected) return;
+  const pulse = Math.sin(frameN * 0.13 + o.x) * 3;
+  ctx.save();
+  ctx.translate(o.x+9, o.cy + pulse);
+  ctx.shadowColor = C.gold; ctx.shadowBlur = 14;
+  ctx.fillStyle = C.gold;
+  ctx.beginPath(); ctx.arc(0,0,9,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 9px Inter,sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('B',0,0);
+  ctx.shadowBlur=0;
+  ctx.restore();
+}
 
-  brickEl.style.left = `${x}px`;
-  brickEl.style.top = "-40px";
-  gameBoard.appendChild(brickEl);
-  brickEl.animate([{ top: "-40px" }, { top: `${Math.max(22, y)}px` }], {
-    duration: 420,
-    easing: "cubic-bezier(.2,.8,.2,1)",
-    fill: "forwards"
+// Runner â€” stick figure with hard hat
+function drawRunner() {
+  if(invincible > 0 && Math.floor(frameN/4)%2===0) return;
+  ctx.save();
+  const ry = runner.y;
+  ctx.translate(RX, ry);
+  if(runner.dead) ctx.rotate(0.4);
+
+  const ls = Math.sin(runner.frame * 0.5) * 14;
+
+  // Ground shadow
+  if(!runner.dead && runner.onGround) {
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath(); ctx.ellipse(0,0,14,4,0,0,Math.PI*2); ctx.fill();
+  }
+
+  ctx.strokeStyle = C.runner; ctx.lineWidth=3; ctx.lineCap='round';
+
+  // Head
+  ctx.fillStyle = C.skin;
+  ctx.beginPath(); ctx.arc(0,-46,9,0,Math.PI*2); ctx.fill();
+
+  // Hard hat (brand red)
+  ctx.fillStyle = C.brick;
+  ctx.beginPath();
+  ctx.moveTo(-12,-52); ctx.lineTo(12,-52); ctx.lineTo(10,-45); ctx.lineTo(-10,-45);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(255,200,0,0.5)';
+  ctx.font = '6px "Black Han Sans",sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('B', 0,-47);
+
+  if(!runner.dead) {
+    // Body
+    ctx.beginPath(); ctx.moveTo(0,-36); ctx.lineTo(0,-14); ctx.stroke();
+    // Arms
+    ctx.beginPath(); ctx.moveTo(0,-30); ctx.lineTo(-14,-20-ls*0.4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,-30); ctx.lineTo(14,-20+ls*0.4); ctx.stroke();
+    // Legs
+    ctx.beginPath(); ctx.moveTo(0,-14); ctx.lineTo(-10, ls>0?2:6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,-14); ctx.lineTo(10,  ls>0?6:2); ctx.stroke();
+    // Shoes
+    ctx.fillStyle='#2A2A2A';
+    ctx.beginPath(); ctx.ellipse(-10,ls>0?4:8,7,4,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(10, ls>0?8:4,7,4,0,0,Math.PI*2); ctx.fill();
+  } else {
+    // Dead sprawl
+    ctx.beginPath(); ctx.moveTo(0,-36); ctx.lineTo(0,-14); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,-30); ctx.lineTo(-18,-16); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,-30); ctx.lineTo(16,-14); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,-14); ctx.lineTo(-14,6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,-14); ctx.lineTo(12,4); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// Particles
+function spawnP(x,y,col,n=14) {
+  for(let i=0;i<n;i++) {
+    particles.push({x,y, vx:(Math.random()-.5)*8, vy:-Math.random()*9-2,
+      life:1, size:3+Math.random()*6, col: col||C.brick});
+  }
+}
+function tickParticles() {
+  particles = particles.filter(p=>p.life>0);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.38; p.life-=0.03;
+    ctx.globalAlpha=p.life;
+    ctx.fillStyle=p.col;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2); ctx.fill();
   });
-
-  brickCount += 1;
-  gameScore += Math.round(100 * accuracy);
-  scoreEl.textContent = gameScore;
-
-  if (brickCount > 9) guide.textContent = "Luxury wall";
+  ctx.globalAlpha=1;
 }
 
+// HUD
+function drawHUD() {
+  // Hearts
+  for(let i=0;i<3;i++) {
+    ctx.globalAlpha = i<lives ? 1 : 0.18;
+    ctx.font='17px serif'; ctx.textAlign='left';
+    ctx.fillText('â™¥', 14+i*24, 26);
+  }
+  ctx.globalAlpha=1;
+
+  // Score
+  ctx.fillStyle='rgba(192,57,43,0.95)';
+  ctx.font='bold 15px Inter,sans-serif';
+  ctx.textAlign='right';
+  ctx.fillText(`${Math.floor(score)+coinScore} pts`, W-14, 26);
+
+  // Double jump indicator
+  const djUsed = runner.usedDouble;
+  ctx.fillStyle = djUsed ? 'rgba(255,255,255,0.1)' : 'rgba(192,57,43,0.75)';
+  ctx.beginPath(); ctx.roundRect(W-95, H-30, 82, 20, 4); ctx.fill();
+  ctx.fillStyle = djUsed ? 'rgba(255,255,255,0.25)' : '#fff';
+  ctx.font='bold 9px Inter'; ctx.textAlign='center';
+  ctx.fillText(djUsed ? 'JUMP USED':'â†‘ DOUBLE JUMP', W-54, H-17);
+
+  // Speed ribbon
+  if(getSpeed() > 6) {
+    ctx.fillStyle='rgba(231,76,60,0.75)';
+    ctx.font='bold 10px Inter'; ctx.textAlign='left';
+    ctx.fillText('âš¡ SPEED BOOST', 14, H-12);
+  }
+
+  // Red flash on hit
+  if(flashRed > 0) {
+    ctx.fillStyle=`rgba(220,0,0,${flashRed/80*0.32})`;
+    ctx.fillRect(0,0,W,H);
+    flashRed--;
+  }
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ RESET â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function resetGame() {
-  gameBoard.querySelectorAll(".game-brick").forEach((el) => el.remove());
-  brickCount = 0;
-  gameScore = 0;
-  scoreEl.textContent = "0";
-  guide.textContent = "Tap to drop";
+  score=0; coinScore=0; frameN=0;
+  particles=[]; coins=[]; obstacles=[];
+  lives=3; invincible=0; flashRed=0;
+  runner.y=GY; runner.vy=0;
+  runner.onGround=true; runner.usedDouble=false;
+  runner.dead=false; runner.frame=0; runner.ft=0;
+  nextObstX = W + 220;
+  scoreEl.textContent='0';
 }
 
-function setupGame() {
-  gameBoard.addEventListener("click", dropGameBrick);
-  resetButton.addEventListener("click", resetGame);
-  cancelAnimationFrame(gameAnimation);
-  animateGameGuide();
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ GAME LOOP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function gameLoop() {
+  if(!running) return;
+  frameN++;
+  ctx.clearRect(0,0,W,H);
+
+  const spd = getSpeed();
+
+  // Collect gap obstacles for floor drawing
+  const gaps = obstacles.filter(o=>o.type==='gap');
+
+  drawBG();
+  drawFloor(gaps);
+
+  // Move & draw obstacles
+  obstacles.forEach(o => { o.x -= spd; });
+  obstacles = obstacles.filter(o => {
+    const right = o.type==='dwall' ? o.x+o.w+o.gap+o.w : o.x+(o.w||55);
+    return right > -10;
+  });
+
+  // Spawn next obstacle
+  if(obstacles.length === 0 || nextObstX - obstacles[obstacles.length-1].x < 0) {
+    // nextObstX is world-x; shift with scroll
+    nextObstX -= spd;
+    if(nextObstX <= W) spawnNext();
+  } else {
+    nextObstX -= spd;
+    if(nextObstX <= W) spawnNext();
+  }
+
+  // Draw walls & double-walls
+  obstacles.forEach(o => drawObstacle(o));
+
+  // Draw coins (type coin obstacles)
+  obstacles.forEach(o => { if(o.type==='coin') drawCoinObj(o); });
+
+  // Runner physics
+  if(!runner.dead) {
+    // Gravity
+    runner.vy += 0.62;
+    runner.y  += runner.vy;
+
+    if(runner.y >= GY) {
+      runner.y = GY;
+      runner.vy = 0;
+      runner.onGround = true;
+      runner.usedDouble = false;
+    } else {
+      runner.onGround = false;
+    }
+
+    // Leg animation
+    runner.ft++;
+    if(runner.ft > 5) { runner.frame++; runner.ft=0; }
+
+    // Invincibility countdown
+    if(invincible>0) invincible--;
+
+    // â”€â”€ Collision â”€â”€
+    // 1. Gap â€” only lethal when on ground
+    const underGap = gaps.find(g => RX+14 > g.x && RX-14 < g.x+g.w);
+    if(underGap && runner.onGround) {
+      hit(C.red);
+    }
+
+    // 2. Wall collision
+    const hitWall = obstacles.find(o => {
+      if(o.type !== 'wall') return false;
+      const ry = runner.y;  // feet
+      const rtop = ry - 60; // head approx
+      const wallTop = GY - o.h;
+      return RX+13 > o.x && RX-13 < o.x+o.w && ry > wallTop && rtop < GY;
+    });
+    if(hitWall && invincible===0) {
+      if(hitWall.brand) {
+        // Brand brick wall â€” safe! award points
+        hitWall.type='scored'; // mark so we don't re-score
+        coinScore += 3;
+        spawnP(hitWall.x+hitWall.w/2, GY-hitWall.h/2, C.gold, 10);
+      } else {
+        hit(C.bad);
+      }
+    }
+
+    // 3. Double wall â€” detect hole passage
+    const hitDwall = obstacles.find(o => {
+      if(o.type !== 'dwall') return false;
+      const passX = o.x+o.w;
+      const passEnd = passX + o.gap;
+      // runner is to the right of left wall AND left of right wall
+      if(RX+13 > o.x && RX-13 < passEnd) {
+        // Is runner in the gap passage (jumping through)?
+        if(RX-13 >= passX && RX+13 <= passEnd) return false; // safely through
+        return true; // hitting a wall section
+      }
+      return false;
+    });
+    if(hitDwall && invincible===0) hit(C.bad);
+
+    // 4. Coin collection
+    obstacles.forEach(o => {
+      if(o.type==='coin' && !o.collected) {
+        if(Math.abs((o.x+9) - RX) < 22 && Math.abs(o.cy - runner.y) < 60) {
+          o.collected = true;
+          coinScore += 5;
+          spawnP(o.x+9, o.cy, C.gold, 10);
+        }
+      }
+    });
+
+    // Score
+    score += 0.05;
+    const total = Math.floor(score) + coinScore;
+    scoreEl.textContent = total;
+    if(total > bestScore) { bestScore=total; bestEl.textContent=bestScore; }
+
+  } else {
+    // Dead â€” fall
+    runner.y += 10;
+  }
+
+  drawRunner();
+  tickParticles();
+  drawHUD();
+
+  animId = requestAnimationFrame(gameLoop);
 }
 
-document.querySelector(".purchase-form").addEventListener("submit", (event) => {
-  event.preventDefault();
-  const button = event.currentTarget.querySelector("button");
-  button.textContent = "Order submitted";
-  setTimeout(() => {
-    button.textContent = "Place order";
-  }, 1600);
+function hit(col) {
+  if(invincible > 0) return;
+  lives--;
+  flashRed = 80;
+  spawnP(RX, runner.y-30, col);
+  if(lives <= 0) {
+    runner.dead = true;
+    setTimeout(showGameOver, 800);
+  } else {
+    invincible = 130;  // ~2s grace
+  }
+}
+
+function showGameOver() {
+  cancelAnimationFrame(animId);
+  running = false;
+  const total = Math.floor(score)+coinScore;
+  overlayTitle.textContent = `Score: ${total}`;
+  const msgs = [
+    'Keep running â€” the brick awaits.',
+    'Grey bricks crumble. Brick-Byte holds.',
+    'Edition 001 demands a better run.',
+    'The void has no bricks. Run smarter.',
+  ];
+  overlayMsg.textContent = msgs[Math.floor(Math.random()*msgs.length)];
+  document.getElementById('startGame').textContent = 'Run Again';
+  overlay.classList.remove('hidden');
+}
+
+function startGame() {
+  overlay.classList.add('hidden');
+  resetGame();
+  running = true;
+  cancelAnimationFrame(animId);
+  gameLoop();
+}
+
+document.getElementById('startGame').addEventListener('click', startGame);
+document.getElementById('resetGame').addEventListener('click', () => {
+  cancelAnimationFrame(animId); running=false;
+  overlayTitle.textContent='Brick-Byte Runner';
+  overlayMsg.textContent='Jump over walls. Collect B coins. Land on brick.';
+  document.getElementById('startGame').textContent='Start Running';
+  overlay.classList.remove('hidden');
 });
 
-makeVideoLoop();
-setupReveal();
-setupBrickInteraction();
-setupGame();
-updateScrollProgress();
+// â”€â”€ Controls â”€â”€
+function doJump() {
+  if(runner.dead) return;
+  if(runner.onGround) {
+    runner.vy = -16;
+    runner.onGround = false;
+    runner.usedDouble = false;
+  } else if(!runner.usedDouble) {
+    runner.vy = -15;
+    runner.usedDouble = true;
+    spawnP(RX, runner.y-20, C.white, 8);
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if(!running) return;
+  if(e.code==='Space'||e.code==='ArrowUp') { e.preventDefault(); doJump(); }
+});
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if(!running) return;
+  doJump();
+}, { passive:false });
+
+canvas.addEventListener('click', () => {
+  if(!running) return;
+  doJump();
+});
+
+/* â”€â”€ 4. ORDER FORM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function handleOrder() {
+  const name  = document.getElementById('customerName').value.trim();
+  const email = document.getElementById('customerEmail').value.trim();
+  const phone = document.getElementById('customerPhone').value.trim();
+  const addr  = document.getElementById('address').value.trim();
+  if(!name||!email||!phone||!addr) { alert('Please fill in all required fields.'); return; }
+  alert(`Thank you, ${name}! Your Brick-Byte order has been placed. We'll confirm via ${email} shortly.`);
+}

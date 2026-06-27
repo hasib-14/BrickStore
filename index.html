@@ -1,200 +1,357 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Monolith Brick Co. | The Luxury Red Brick</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <header class="site-header" aria-label="Primary navigation">
-      <a class="brand" href="#top" aria-label="Monolith Brick Co. home">
-        <span class="brand-mark"></span>
-        Monolith Brick Co.
-      </a>
-      <nav>
-        <a href="#craft">Craft</a>
-        <a href="#game">Stack</a>
-        <a href="#buy">Buy</a>
-      </nav>
-      <a class="header-cta" href="#buy">Reserve</a>
-    </header>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Brick-Byte | The Luxury Red Brick</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&family=Black+Han+Sans&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
 
-    <main id="top">
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-video-wrap" aria-label="Looping video of an engineer building with bricks">
-          <video
-            id="engineerVideo"
-            class="hero-video"
-            autoplay
-            muted
-            loop
-            playsinline
-            poster="assets/engineer-brick-poster.svg"
-          ></video>
-          <canvas id="videoCanvas" width="960" height="540" aria-hidden="true"></canvas>
-          <div class="film-grain" aria-hidden="true"></div>
-        </div>
+<!-- HEADER -->
+<header class="site-header">
+  <a class="brand" href="#top">
+    <div class="brand-brick-logo">
+      <span class="bl-row"><span class="bl-b"></span><span class="bl-b"></span><span class="bl-b"></span></span>
+      <span class="bl-row"><span class="bl-b"></span><span class="bl-gap"></span><span class="bl-b"></span></span>
+      <span class="bl-row"><span class="bl-b"></span><span class="bl-b"></span><span class="bl-b"></span></span>
+    </div>
+    <span class="brand-text">Brick<span class="brand-dash">&#8209;</span>Byte</span>
+  </a>
+  <nav>
+    <a href="#craft">Craft</a>
+    <a href="#photos">Photos</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#game">Game</a>
+    <a href="#buy">Buy</a>
+  </nav>
+  <a class="header-cta" href="#buy">Reserve</a>
+</header>
 
-        <div class="hero-copy reveal">
-          <p class="eyebrow">Limited fired clay. Unlimited presence.</p>
-          <h1 id="hero-title">The Plain Red Brick, Recast as an Object of Desire.</h1>
-          <p class="hero-lede">
-            One kiln-fired block. Twelve flawless edges. A red so confident it makes glass towers feel underdressed.
-          </p>
-          <div class="hero-actions">
-            <a class="primary-action" href="#buy">Own the brick</a>
-            <button class="ghost-action" type="button" id="spinBrick">Inspect in 3D</button>
-          </div>
-        </div>
+<!-- HERO -->
+<main id="top">
+<section class="hero">
+  <div class="hero-video-wrap" aria-label="Looping intro video of bricks becoming a home">
+    <video
+      id="engineerVideo"
+      class="hero-video"
+      autoplay
+      muted
+      loop
+      playsinline
+      poster="assets/engineer-brick-poster.svg"
+    ></video>
+    <canvas id="videoCanvas" width="960" height="540" aria-hidden="true"></canvas>
+    <div class="film-grain" aria-hidden="true"></div>
+  </div>
+  <div class="hero-copy reveal">
+    <p class="eyebrow">Limited fired clay. Unlimited presence.</p>
+    <h1>The Plain Red Brick,<br>Recast as an<br><span class="h1-highlight">Object of Desire.</span></h1>
+    <p class="hero-lede">One kiln-fired block. Twelve flawless edges. A red so confident it makes glass towers feel underdressed.</p>
+    <div class="hero-actions">
+      <a class="primary-action" href="#buy">Own the brick</a>
+      <a class="ghost-action" href="#gallery">View in 3D</a>
+    </div>
+  </div>
 
-        <div class="hero-stage" aria-label="Interactive 3D brick preview">
-          <div class="brick3d" id="brick3d">
-            <span class="face front"></span>
-            <span class="face back"></span>
-            <span class="face right"></span>
-            <span class="face left"></span>
-            <span class="face top"></span>
-            <span class="face bottom"></span>
-          </div>
-          <div class="stage-shadow" aria-hidden="true"></div>
-        </div>
-      </section>
+  <div class="hero-stage">
+    <div class="brick3d" id="brick3d">
+      <span class="face front"></span>
+      <span class="face back"></span>
+      <span class="face right"></span>
+      <span class="face left"></span>
+      <span class="face top"></span>
+      <span class="face bottom"></span>
+    </div>
+    <div class="stage-shadow"></div>
+  </div>
+</section>
 
-      <section class="ticker" aria-label="Product highlights">
-        <span>Hand selected clay</span>
-        <span>Architect-approved weight</span>
-        <span>Tabletop worthy finish</span>
-        <span>Absurdly giftable</span>
-      </section>
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span>Hand selected clay</span><span class="sep">♦</span>
+    <span>Architect-approved weight</span><span class="sep">♦</span>
+    <span>Tabletop worthy finish</span><span class="sep">♦</span>
+    <span>Absurdly giftable</span><span class="sep">♦</span>
+    <span>Brick-Byte certified</span><span class="sep">♦</span>
+    <span>Hand selected clay</span><span class="sep">♦</span>
+    <span>Architect-approved weight</span><span class="sep">♦</span>
+    <span>Tabletop worthy finish</span><span class="sep">♦</span>
+    <span>Absurdly giftable</span><span class="sep">♦</span>
+    <span>Brick-Byte certified</span><span class="sep">♦</span>
+  </div>
+</div>
 
-      <section class="craft section-band" id="craft" aria-labelledby="craft-title">
-        <div class="section-copy reveal">
-          <p class="eyebrow">The craft</p>
-          <h2 id="craft-title">A brick with the confidence of a watch, the honesty of a wall.</h2>
-        </div>
-        <div class="feature-grid">
-          <article class="feature reveal">
-            <span class="feature-no">01</span>
-            <h3>Architectural heft</h3>
-            <p>Dense enough to feel permanent the second it meets your palm.</p>
-          </article>
-          <article class="feature reveal">
-            <span class="feature-no">02</span>
-            <h3>Velvet red surface</h3>
-            <p>Subtle mineral variation gives every piece its own quiet signature.</p>
-          </article>
-          <article class="feature reveal">
-            <span class="feature-no">03</span>
-            <h3>Display-grade geometry</h3>
-            <p>Sharp lines, softened corners, and a profile that photographs like sculpture.</p>
-          </article>
-        </div>
-      </section>
+<!-- CRAFT -->
+<section class="craft section-band" id="craft">
+  <div class="section-copy reveal">
+    <p class="eyebrow">The craft</p>
+    <h2>A brick with the confidence of a watch,<br>the honesty of a wall.</h2>
+  </div>
+  <div class="feature-grid">
+    <article class="feature reveal">
+      <span class="feature-no">01</span>
+      <h3>Architectural heft</h3>
+      <p>Dense enough to feel permanent the second it meets your palm.</p>
+    </article>
+    <article class="feature reveal">
+      <span class="feature-no">02</span>
+      <h3>Velvet red surface</h3>
+      <p>Subtle mineral variation gives every piece its own quiet signature.</p>
+    </article>
+    <article class="feature reveal">
+      <span class="feature-no">03</span>
+      <h3>Display-grade geometry</h3>
+      <p>Sharp lines, softened corners, and a profile that photographs like sculpture.</p>
+    </article>
+  </div>
+</section>
 
-      <section class="showcase" aria-labelledby="showcase-title">
-        <div class="scroll-rail" aria-hidden="true">
-          <span></span>
-        </div>
-        <div class="showcase-copy reveal">
-          <p class="eyebrow">Scroll transition</p>
-          <h2 id="showcase-title">From ordinary clay to statement piece.</h2>
-          <p>
-            Move through the page and the brick earns its pedestal: raw material, fired surface, premium object.
-          </p>
-        </div>
-        <div class="transformation" aria-hidden="true">
-          <div class="phase phase-clay">Clay</div>
-          <div class="phase phase-fire">Fire</div>
-          <div class="phase phase-icon">Icon</div>
-        </div>
-      </section>
+<!-- REAL BRICK PHOTO SECTION -->
+<section class="photos section-band" id="photos">
+  <div class="section-copy reveal">
+    <p class="eyebrow">The real thing</p>
+    <h2>Photographed. Not rendered.</h2>
+    <p>This is what a Brick-Byte signature brick looks like in the real world — kiln-fired clay, honest geometry, and a red that doesn't apologise for existing.</p>
+  </div>
 
-      <section class="game section-band" id="game" aria-labelledby="game-title">
-        <div class="game-copy reveal">
-          <p class="eyebrow">Three-second hook</p>
-          <h2 id="game-title">Stack a luxury wall before attention runs out.</h2>
-          <p>Click or tap to drop each brick. Build higher, stay straight, and earn a collector badge.</p>
-        </div>
-        <div class="game-panel reveal">
-          <div class="game-hud">
-            <span>Score <strong id="score">0</strong></span>
-            <button type="button" id="resetGame">Reset</button>
-          </div>
-          <div class="game-board" id="gameBoard" role="application" aria-label="Brick stacking mini-game">
-            <div class="drop-guide" id="dropGuide">Tap to drop</div>
-          </div>
-        </div>
-      </section>
+  <div class="photo-grid reveal">
+    <div class="photo-card photo-card--large">
+      <img src="brick1.jpg" alt="Brick-Byte signature bricks — two stacked" loading="lazy" />
+      <div class="photo-card-label">
+        <span class="pc-tag">Edition 001</span>
+        <p>The double stack. Two bricks, one vision.</p>
+      </div>
+    </div>
+    <div class="photo-card">
+      <img src="brick2.jpg" alt="Brick-Byte bricks stacked in formation" loading="lazy" />
+      <div class="photo-card-label">
+        <span class="pc-tag">In formation</span>
+        <p>Every hole, every edge — precision fired.</p>
+      </div>
+    </div>
+    <div class="photo-stat-card reveal">
+      <div class="stat-item">
+        <strong>215mm</strong>
+        <span>Length</span>
+      </div>
+      <div class="stat-item">
+        <strong>102mm</strong>
+        <span>Width</span>
+      </div>
+      <div class="stat-item">
+        <strong>65mm</strong>
+        <span>Height</span>
+      </div>
+      <div class="stat-item">
+        <strong>~3.1kg</strong>
+        <span>Weight</span>
+      </div>
+      <p class="stat-note">Standard UK brick dimensions. Non-standard confidence.</p>
+    </div>
+  </div>
+</section>
 
-      <section class="buy" id="buy" aria-labelledby="buy-title">
-        <div class="buy-copy reveal">
-          <p class="eyebrow">The offer</p>
-          <h2 id="buy-title">The Signature Brick</h2>
-          <p>
-            A single premium red brick, wrapped in black paper, sealed with a brass-stamped certificate of
-            authenticity.
-          </p>
-        </div>
-        <div class="price-box reveal">
-          <span class="label">Edition 001</span>
-          <strong>$49</strong>
-          <p>Includes display stand, certificate, and enough dramatic energy to upgrade any shelf.</p>
-          <form class="purchase-form" aria-label="Brick order form">
-            <div class="form-grid">
-              <div class="form-field">
-                <label for="customerName">Full name</label>
-                <input id="customerName" name="customerName" type="text" autocomplete="name" required />
-              </div>
-              <div class="form-field">
-                <label for="customerEmail">Email</label>
-                <input id="customerEmail" name="customerEmail" type="email" autocomplete="email" required />
-              </div>
-              <div class="form-field">
-                <label for="customerPhone">Phone</label>
-                <input id="customerPhone" name="customerPhone" type="tel" autocomplete="tel" required />
-              </div>
-              <div class="form-field">
-                <label for="quantity">Quantity</label>
-                <input id="quantity" name="quantity" type="number" min="1" max="24" value="1" required />
-              </div>
-              <div class="form-field">
-                <label for="finish">Finish</label>
-                <select id="finish" name="finish" required>
-                  <option value="signature">Signature red</option>
-                  <option value="matte">Matte collector</option>
-                  <option value="numbered">Numbered gift edition</option>
-                </select>
-              </div>
-              <div class="form-field">
-                <label for="delivery">Delivery</label>
-                <select id="delivery" name="delivery" required>
-                  <option value="standard">Standard delivery</option>
-                  <option value="express">Express delivery</option>
-                  <option value="pickup">Store pickup</option>
-                </select>
-              </div>
-              <div class="form-field full">
-                <label for="address">Delivery address</label>
-                <textarea id="address" name="address" rows="3" autocomplete="street-address" required></textarea>
-              </div>
-              <div class="form-field full">
-                <label for="notes">Order notes</label>
-                <textarea id="notes" name="notes" rows="2" placeholder="Gift message, delivery timing, or special handling"></textarea>
-              </div>
+<!-- 3D PHOTO GALLERY -->
+<section class="gallery section-band" id="gallery">
+  <div class="section-copy reveal">
+    <p class="eyebrow">Inspect the object</p>
+    <h2>Every angle. Every grain. Every edge.</h2>
+    <p>Rotate through our gallery — real photography of the Brick-Byte signature brick.</p>
+  </div>
+
+  <div class="gallery-viewer reveal">
+    <div class="gallery-scene">
+      <div class="gallery-cube" id="galleryCube">
+        <div class="gc-face gc-front">
+          <div class="brick-photo bp-front">
+            <div class="bp-texture"></div>
+            <div class="bp-label">Front Face</div>
+            <div class="bp-detail">
+              <div class="brick-hole"></div>
+              <div class="brick-hole"></div>
             </div>
-            <button class="order-submit" type="submit">Place order</button>
-          </form>
+          </div>
         </div>
-      </section>
-    </main>
+        <div class="gc-face gc-back">
+          <div class="brick-photo bp-back">
+            <div class="bp-texture"></div>
+            <div class="bp-label">Back Face</div>
+            <div class="bp-detail">
+              <div class="brick-hole"></div>
+              <div class="brick-hole"></div>
+            </div>
+          </div>
+        </div>
+        <div class="gc-face gc-right">
+          <div class="brick-photo bp-side">
+            <div class="bp-texture"></div>
+            <div class="bp-label">Side Profile</div>
+          </div>
+        </div>
+        <div class="gc-face gc-left">
+          <div class="brick-photo bp-side">
+            <div class="bp-texture"></div>
+            <div class="bp-label">Side Profile</div>
+          </div>
+        </div>
+        <div class="gc-face gc-top">
+          <div class="brick-photo bp-top">
+            <div class="bp-texture"></div>
+            <div class="bp-label">Top View</div>
+            <div class="bp-detail top-holes">
+              <div class="brick-hole-top"></div>
+              <div class="brick-hole-top"></div>
+            </div>
+          </div>
+        </div>
+        <div class="gc-face gc-bottom">
+          <div class="brick-photo bp-top">
+            <div class="bp-texture"></div>
+            <div class="bp-label">Bottom View</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <script src="script.js"></script>
-  </body>
+    <div class="gallery-controls">
+      <button class="gc-btn" id="gcLeft">&#8592;</button>
+      <div class="gc-view-label" id="gcLabel">Front Face</div>
+      <button class="gc-btn" id="gcRight">&#8594;</button>
+    </div>
+    <p class="gallery-hint">Drag to rotate · Use arrows to cycle views</p>
+
+    <div class="gallery-dots" id="galleryDots">
+      <span class="gd active"></span>
+      <span class="gd"></span>
+      <span class="gd"></span>
+      <span class="gd"></span>
+      <span class="gd"></span>
+      <span class="gd"></span>
+    </div>
+  </div>
+</section>
+
+<!-- RUNNER GAME -->
+<section class="game section-band" id="game">
+  <div class="game-copy reveal">
+    <p class="eyebrow">Play the game</p>
+    <h2>Run on Brick-Byte.<br>Or fall into the void.</h2>
+    <p>Jump over obstacles. Land on <strong>Brick-Byte red bricks</strong> — fake grey walls crumble you. Collect golden <strong>B coins</strong>. Double-jump to clear tough gaps. You have 3 lives.</p>
+  </div>
+
+  <div class="game-panel reveal">
+    <div class="game-hud">
+      <span>Score <strong id="score">0</strong></span>
+      <span>Best <strong id="bestScore">0</strong></span>
+      <button type="button" id="resetGame">Restart</button>
+    </div>
+
+    <div class="game-wrap">
+      <canvas id="runnerCanvas" width="700" height="320"></canvas>
+      <div class="game-overlay" id="gameOverlay">
+        <div class="go-inner">
+          <div class="go-logo">B</div>
+          <h3 id="overlayTitle">Brick-Byte Runner</h3>
+          <p id="overlayMsg">Jump walls &amp; gaps. Collect B coins. You have 3 lives!</p>
+          <div class="go-controls">
+            <div class="go-ctrl"><kbd>↑ / Space</kbd><span>Jump / Double-jump</span></div>
+            <div class="go-ctrl"><kbd>↓</kbd><span>Switch lane</span></div>
+            <div class="go-ctrl mobile-only"><span class="tap-icon">◀ Tap left</span><span>Switch lane</span></div>
+            <div class="go-ctrl mobile-only"><span class="tap-icon">Tap right ▶</span><span>Jump</span></div>
+          </div>
+          <button type="button" id="startGame">Start Running</button>
+        </div>
+      </div>
+    </div>
+    <p class="game-hint"><kbd>Space</kbd> / <kbd>↑</kbd> / <strong>Click</strong> to jump · Press again in air for double-jump · On mobile: tap canvas to jump</p>
+  </div>
+</section>
+
+<!-- BUY -->
+<section class="buy" id="buy">
+  <div class="buy-copy reveal">
+    <p class="eyebrow">The offer</p>
+    <h2>The Brick-Byte<br>Signature Brick</h2>
+    <p>A single premium red brick, wrapped in black paper, sealed with a brass-stamped certificate of authenticity.</p>
+  </div>
+  <div class="price-box reveal">
+    <span class="label">Edition 001</span>
+    <strong>$49</strong>
+    <p>Includes display stand, certificate, and enough dramatic energy to upgrade any shelf.</p>
+    <div class="purchase-form">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="customerName">Full name</label>
+          <input id="customerName" name="customerName" type="text" autocomplete="name" required />
+        </div>
+        <div class="form-field">
+          <label for="customerEmail">Email</label>
+          <input id="customerEmail" name="customerEmail" type="email" autocomplete="email" required />
+        </div>
+        <div class="form-field">
+          <label for="customerPhone">Phone</label>
+          <input id="customerPhone" name="customerPhone" type="tel" autocomplete="tel" required />
+        </div>
+        <div class="form-field">
+          <label for="quantity">Quantity</label>
+          <input id="quantity" name="quantity" type="number" min="1" max="24" value="1" required />
+        </div>
+        <div class="form-field">
+          <label for="finish">Finish</label>
+          <select id="finish" name="finish" required>
+            <option value="signature">Signature red</option>
+            <option value="matte">Matte collector</option>
+            <option value="numbered">Numbered gift edition</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="delivery">Delivery</label>
+          <select id="delivery" name="delivery" required>
+            <option value="standard">Standard delivery</option>
+            <option value="express">Express delivery</option>
+            <option value="pickup">Store pickup</option>
+          </select>
+        </div>
+        <div class="form-field full">
+          <label for="address">Delivery address</label>
+          <textarea id="address" name="address" rows="3" autocomplete="street-address" required></textarea>
+        </div>
+        <div class="form-field full">
+          <label for="notes">Order notes</label>
+          <textarea id="notes" name="notes" rows="2" placeholder="Gift message, delivery timing, or special handling"></textarea>
+        </div>
+      </div>
+      <button class="order-submit" type="button" onclick="handleOrder()">Place order</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-brand">
+    <div class="brand-brick-logo footer-logo">
+      <span class="bl-row"><span class="bl-b"></span><span class="bl-b"></span><span class="bl-b"></span></span>
+      <span class="bl-row"><span class="bl-b"></span><span class="bl-gap"></span><span class="bl-b"></span></span>
+      <span class="bl-row"><span class="bl-b"></span><span class="bl-b"></span><span class="bl-b"></span></span>
+    </div>
+    <span class="brand-text">Brick<span class="brand-dash">&#8209;</span>Byte</span>
+  </div>
+  <p class="footer-copy">&copy; 2026 Brick-Byte Co. All rights reserved. One brick at a time.</p>
+  <nav class="footer-nav">
+    <a href="#craft">Craft</a>
+    <a href="#photos">Photos</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#game">Game</a>
+    <a href="#buy">Buy</a>
+  </nav>
+</footer>
+</main>
+
+<script src="script.js"></script>
+</body>
 </html>
